@@ -203,6 +203,7 @@ csv_writer = None
 active_vqf = False
 active_log = None
 reconfig_dirty = False
+identify_request = False   # set by the 'i' key; flashes the LED to locate the device
 
 # Sleep state. sleep_request is set by a long button press or the idle timeout
 # and handled in stream() (sends SLEEP_SEQ). sleep_timeout/sleep_on_exit are set
@@ -499,6 +500,32 @@ def request_reconfig(use_vqf, log_path):
     reconfig_dirty = True
 
 
+def identify():
+    """Ask the running stream to flash the LED so the device can be spotted."""
+    global identify_request
+    identify_request = True
+
+
+async def _do_identify(client):
+    """Flash the LED magenta (red+blue) a few times, then restore the battery LED."""
+    try:
+        await client.write_gatt_char(MW_CMD_CHAR, LED_STOP_CLEAR, response=False)
+        for color in ("red", "blue"):
+            await client.write_gatt_char(
+                MW_CMD_CHAR,
+                led_pattern(color, high=31, low=0, rise=60, high_t=180,
+                            fall=60, pulse=520, repeat=5),
+                response=False)
+        await client.write_gatt_char(MW_CMD_CHAR, LED_PLAY, response=False)
+        await asyncio.sleep(3.0)
+    finally:
+        for cmd in battery_led_commands(battery_pct):
+            try:
+                await client.write_gatt_char(MW_CMD_CHAR, cmd, response=True)
+            except Exception:
+                pass
+
+
 def set_outputs(selected):
     """Replace the live OSC output set (host-side, takes effect immediately, no
     reconnect). `selected` is a list of (profiles.Profile, port)."""
@@ -637,7 +664,7 @@ async def stream(address):
     """
     global vqf_filter, _mag_seen, sleep_request, button_down_at, idle_ref_quat
     global conn_status, battery_pct, reconfig_dirty, display_prefix
-    global mode_settling, retare_target
+    global mode_settling, retare_target, identify_request
     disconnected = asyncio.Event()
 
     def on_disconnect(_client):
@@ -703,8 +730,8 @@ async def stream(address):
             print("[fusion] raw IMU streaming, host-side VQF fusion.")
         else:
             print("[fusion] NDOF enabled, streaming quaternion.")
-        print("         Enter or a button tap = tare; hold the button = sleep.  "
-              "Ctrl-C to quit.\n")
+        print("         Enter or a button tap = tare; 'i'+Enter = identify; "
+              "hold the button = sleep.  Ctrl-C to quit.\n")
 
         # Temperature polling runs in BOTH modes (board temp is always shown); the
         # 1 Hz CSV row is only written when logging is on in VQF mode.
@@ -734,6 +761,9 @@ async def stream(address):
                         print(f"\n[mode] switched to {'VQF' if active_vqf else 'BSX'} "
                               f"in place")
                     _sync_log()
+                if identify_request:
+                    identify_request = False
+                    await _do_identify(client)
                 try:
                     await asyncio.wait_for(disconnected.wait(), timeout=0.1)
                 except asyncio.TimeoutError:
@@ -760,14 +790,17 @@ async def stream(address):
 
 
 async def tare_listener():
-    """Request a tare on each Enter keypress."""
-    global tare_request
+    """Enter = tare; 'i' + Enter = identify (flash the LED to locate the device)."""
+    global tare_request, identify_request
     loop = asyncio.get_running_loop()
     while True:
         line = await loop.run_in_executor(None, sys.stdin.readline)
         if line == "":             # EOF (stdin not a TTY): stop listening
             return
-        tare_request = True
+        if line.strip().lower() == "i":
+            identify_request = True
+        else:
+            tare_request = True
 
 
 async def run(address, port, use_vqf, log_path, selected=None):

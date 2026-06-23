@@ -170,6 +170,8 @@ it will not appear in a scan until the button is pressed.
   at once with port-collision detection.
 - Yaw/pitch/roll shown in the terminal at about 5 Hz.
 - Tare (zero the heading) with **Enter** or a quick tap of the device button.
+- Locate the device with **`i`** then Enter: the LED flashes magenta (red+blue)
+  a few times, then returns to the battery colour.
 - Deep-sleep on a button hold, an idle timeout, or clean exit; a single press
   wakes it (see Sleep and wake above).
 - Device LED reflects battery level:
