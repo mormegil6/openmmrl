@@ -329,10 +329,15 @@ def process_quaternion(w, x, y, z):
     if tare_quat is not None:
         q = quat_multiply(quat_conjugate(tare_quat), q)
 
-    qw, qx, qy, qz = q
-    yaw, pitch, roll = quat_to_ypr(q)
-    latest_quat = (qw, qx, qy, qz)
+    # The terminal readout / YPR profiles use the intuitive (native) orientation; MMRL's
+    # fusion reports the opposite yaw sign, so negate qz for the native orientation.
+    yaw, pitch, roll = quat_to_ypr((q[0], q[1], q[2], -q[3]))
+    # The EMITTED quaternion goes out in the renderer-profile (internal) quaternion
+    # convention (shared profiles.py, taken from Supperware Bridgehead) so a quaternion
+    # profile reproduces a tracker wired straight into the renderer, matching the YPR path.
+    latest_quat = (q[0], q[2], -q[1], q[3])
     latest_ypr = (yaw, pitch, roll)
+    qw, qx, qy, qz = latest_quat          # used by the idle/sleep detection below
 
     for prof, client in outputs:
         prof.emit(client, latest_quat, latest_ypr)
