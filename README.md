@@ -1,9 +1,10 @@
-[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)]() [![bleak](https://img.shields.io/badge/bleak-BLE-1F6FEB.svg)]() [![python-osc](https://img.shields.io/badge/python--osc-OSC-1F6FEB.svg)]() [![VQF](https://img.shields.io/badge/VQF-optional-1F6FEB.svg)]() [![macOS](https://img.shields.io/badge/macOS-arm64%2Fx86__64-000000.svg?logo=apple&logoColor=white)]() [![Device](https://img.shields.io/badge/device-MetaMotion%20RL%20%C2%B7%20BMI160%20%2B%20BMM150-8A2BE2.svg)]() [![Protocol](https://img.shields.io/badge/protocol-reverse--engineered-007808.svg)](docs/PROTOCOL.md) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)]() [![bleak](https://img.shields.io/badge/bleak-BLE-1F6FEB.svg)]() [![python-osc](https://img.shields.io/badge/python--osc-OSC-1F6FEB.svg)]() [![VQF](https://img.shields.io/badge/VQF-optional-1F6FEB.svg)]() [![macOS](https://img.shields.io/badge/macOS-tested-000000.svg?logo=apple&logoColor=white)]() [![Windows | Linux](https://img.shields.io/badge/Windows%20%7C%20Linux-untested-lightgrey.svg)]() [![Device](https://img.shields.io/badge/device-MetaMotion%20RL%20%C2%B7%20BMI160%20%2B%20BMM150-8A2BE2.svg)]() [![Protocol](https://img.shields.io/badge/protocol-reverse--engineered-007808.svg)](docs/PROTOCOL.md) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 # openMMRL - MetaMotion RL head tracker OSC bridge
 
-Use an Mbientlab **MetaMotion RL** (MMRL) as a head tracker for spatial audio on
-**macOS**.
+Use an Mbientlab **MetaMotion RL** (MMRL) as a head tracker for spatial audio. It is
+built on bleak, so it is meant to be cross-platform, but so far it is **developed and
+tested on macOS (Apple Silicon) only** - Windows and Linux are untested.
 
 > **There's a GUI app: Busola** ([GitLab](https://git.pg.edu.pl/p829296/busola-app) / [GitHub](https://github.com/mormegil6/busola-app)). A menu-bar app that drives this tracker - plus Waves Nx, Supperware and MrHeadTracker - with device memory, live profile-switching and CSV logging. This repo is the bridge it's built on.
 
@@ -45,9 +46,10 @@ sign convention and UDP port, so openMMRL uses selectable **profiles**
 Each profile applies the correct address, per-axis sign/swap and port. Axis and
 sign conventions are verified against
 [Supperware Bridgehead](https://supperware.co.uk/headtracker-bridgehead)'s
-profile list. You can add your own in `~/Library/Application
-Support/openmmrl/profiles.txt` (four lines per profile - name, address, args,
-port - in Supperware's `Profiles.txt` format); `openmmrl.py` loads them on top of
+profile list. You can add your own in a `profiles.txt` in this script's per-user
+config dir - `~/Library/Application Support/openmmrl/` (macOS), `%APPDATA%\openmmrl`
+(Windows) or `~/.config/openmmrl/` (Linux). Each profile is four lines - name, address,
+args, port - in Supperware's `Profiles.txt` format; `openmmrl.py` loads them on top of
 the built-in profiles.
 
 **Protocol:** the full reverse-engineered MetaWear GATT protocol and hardware

@@ -870,6 +870,19 @@ async def run(address, port, use_vqf, log_path, selected=None):
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
+def _config_dir():
+    """Per-user dir holding this script's OSC profiles file, per OS:
+    macOS ~/Library/Application Support/openmmrl, Windows %APPDATA%\\openmmrl,
+    else $XDG_CONFIG_HOME/openmmrl (or ~/.config/openmmrl)."""
+    if sys.platform == "darwin":
+        base = os.path.expanduser("~/Library/Application Support")
+    elif os.name == "nt":
+        base = os.environ.get("APPDATA") or os.path.expanduser("~")
+    else:
+        base = os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config")
+    return os.path.join(base, "openmmrl")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="MetaMotion RL head tracker with OSC output (macOS / bleak)")
@@ -907,8 +920,7 @@ def main():
     args = parser.parse_args()
 
     # User-defined profiles (shared with the menu-bar app).
-    profiles.add_from_file(os.path.expanduser(
-        "~/Library/Application Support/openmmrl/profiles.txt"))
+    profiles.add_from_file(os.path.join(_config_dir(), "profiles.txt"))
 
     if args.list_profiles:
         print(profiles.format_list())
