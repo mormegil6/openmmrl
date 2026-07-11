@@ -4,7 +4,7 @@ __pycache__/
 *.egg-info/
 .eggs/
 
-# PyInstaller build artifacts (build the binary locally; don't commit it)
+# Build artifacts
 build/
 dist/
 *.spec

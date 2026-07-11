@@ -237,29 +237,8 @@ python osc_monitor.py --port 8000   # in a second terminal
 ## Bluetooth permission (macOS)
 
 The first BLE scan triggers a permission prompt for the app running it (Terminal,
-iTerm, VS Code, or a built binary). Allow it. If scanning finds nothing, check
+iTerm, VS Code). Allow it. If scanning finds nothing, check
 System Settings > Privacy & Security > Bluetooth.
-
-## Standalone binary
-
-Build a single signed executable for Apple Silicon with PyInstaller:
-
-```bash
-pip install pyinstaller
-pyinstaller --onefile --name openmmrl \
-  --hidden-import bleak.backends.corebluetooth \
-  --hidden-import bleak.backends.corebluetooth.scanner \
-  --hidden-import bleak.backends.corebluetooth.client \
-  openmmrl.py
-codesign --deep --force --sign - dist/openmmrl   # ad-hoc sign
-
-./dist/openmmrl
-```
-
-For `--vqf` in the binary, add `--hidden-import vqf --hidden-import vqf.vqf
---collect-submodules numpy` to the build. The result runs on any Apple Silicon
-Mac without Python installed. The `build/` and `dist/` artifacts are git-ignored;
-build them locally or attach the binary to a release.
 
 ## Troubleshooting
 
