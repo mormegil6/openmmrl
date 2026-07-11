@@ -14,7 +14,6 @@ dist/
 venv/
 env/
 ENV/
-mmrl-venv/
 *-venv/
 
 # Editor / OS

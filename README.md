@@ -188,8 +188,8 @@ it will not appear in a scan until the button is pressed.
 Requires Python 3.9 or newer.
 
 ```bash
-python3 -m venv mmrl-venv
-source mmrl-venv/bin/activate
+python3 -m venv openmmrl-venv
+source openmmrl-venv/bin/activate
 pip install -r requirements.txt
 
 python openmmrl.py                 # scan, then pick a device by number
